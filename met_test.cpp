@@ -37,10 +37,11 @@ int alg_test(const char* dumpfile="") {
 
 		uint64_t ie=0;
 		while ( fread(&ie, sizeof(uint64_t), 1, f) && ie<NTEST) {
-			if (ie>15) break;
+			if (ie>10000) break;
 			readManyFromFile(pfs,f);
 			printf("Event %d has %d PF candidates \n", int(ie), int(pfs.size()));
 			for(size_t ip=0;ip<pfs.size() && ip<NPART;ip++){
+				if(ip > 59) continue; //only 60 inputs are received
 				vals[ie][ip] = std::make_pair<float,float>(pfs[ip].hwPt, pfs[ip].hwPhi);
 			}
 		}
@@ -77,6 +78,7 @@ int alg_test(const char* dumpfile="") {
             in_pt[j]  = vals[i][j].first;
             in_phi[j] = vals[i][j].second;
             if(DEBUG){
+				std::cout << "N = " << NPART;
                 std::cout << " \t part pt " << in_pt[j];
                 std::cout << "\t phi " << in_phi[j];
                 std::cout << std::endl;
@@ -236,7 +238,7 @@ int full_alg_test() {
 int main() {
 
     // test the algorithm
-    alg_test("/home/jhong/hlsmet/outdk.dump");
+    alg_test("/home/jhong/hlsmet/out_TTbar.dump");
     //full_alg_test();
 
     return 0;

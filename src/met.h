@@ -8,7 +8,7 @@
 #include "hls_math.h"
 
 // For testing
-#define NTEST 1000
+#define NTEST 10000
 #define NPART 100
 #define FLOATPI 3.141593
 #define DEBUG 0
@@ -179,10 +179,10 @@ void init_acos_table(phi_T table_out[ACOS_TAB_SIZE]){
         /*     table_out[INDEX] = acos(2*((ACOS_TAB_SIZE-1)-i)/float(ACOS_TAB_SIZE)-1); */
         /*     INDEX++; */
         /* } */
-    std::cout << "initializing acos table \n";
+    if(DEBUG) {std::cout << "initializing acos table \n";}
     for(int i = 0; i<ACOS_TAB_SIZE; i++){
         table_out[i] = (1<<(PHI_SIZE-2)) * acos(i/float(ACOS_TAB_SIZE-1)) / (FLOATPI/2); // maps [0, 1023] to [acos(0), acos(1023/1023)] *** 3.1415/2
-        std::cout << "  " << i << " -> " << table_out[i] << std::endl;
+        if(DEBUG) {std::cout << "  " << i << " -> " << table_out[i] << std::endl;}
     }
     return;
 }
@@ -214,7 +214,8 @@ template<class pxy_T, class phi_T, class pt2_T>
     pt_t pt = hls::sqrt(pt2);
 
     pt_t inv_pt = 1;
-    if(pt< (1<<(PT_SIZE-DROP_BITS))) inv_pt = inv_table[pt];
+    //if(pt< (1<<(PT_SIZE-DROP_BITS))) inv_pt = inv_table[pt];
+    if(pt< (INV_TAB_SIZE)) inv_pt = inv_table[pt];
     
     //index converts px/pt (in [0,1]) to a number between [0,1023]
     //ap_uint<ACOS_SIZE> index = absval_px * inv_pt / (ACOS_TAB_SIZE-1);
@@ -226,7 +227,7 @@ template<class pxy_T, class phi_T, class pt2_T>
 
     //index = (((px/hls::sqrt(pt))+1)/2)*ACOS_TAB_SIZE;
     /* std::cout << "absval_px=" << int(absval_px) << "  pt=" << int(hls::sqrt(pt)) << "  (tab size-1)=" << int((ACOS_TAB_SIZE-1)) << "  phi=" << int(absval_px/hls::sqrt(pt)*(ACOS_TAB_SIZE-1)) << std::endl; */
-    std::cout 
+    if(DEBUG) {std::cout 
         << "px=" << int(px) 
         << "  py=" << int(py) 
         << "  pt2=" << int(pt2) 
@@ -234,7 +235,7 @@ template<class pxy_T, class phi_T, class pt2_T>
         << "  1/pt=" << int(inv_pt) 
         << "  index=" << int(index) 
         << "  phi=" << int(phi) 
-        << std::endl;
+        << std::endl;}
 
     //convert phi from (0,pi/2) to (-pi to pi)
     if(px < 0) phi = (1<<(PHI_SIZE-1)) - phi; // 2pi = 2^PHI_SIZE, so pi = 1<<(PHI_SIZE-1)
